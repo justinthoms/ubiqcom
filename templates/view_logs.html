@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syslog Viewer</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5a623;
+            --background-color: #f9f9f9;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .search-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="datetime-local"],
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e69100;
+        }
+
+        .link-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .link-button:hover {
+            background-color: #e69100;
+        }
+
+        .actions .link-button {
+            background-color: #ff5733; /* Change this color to your desired color */
+            color: white; /* Text color */
+        }
+
+        .actions .link-button:hover {
+            background-color: #0056b3; /* Change this color to your desired hover color */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .clear-logs, .logout {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .clear-logs button {
+            background-color: #e74c3c;
+        }
+
+        .clear-logs button:hover {
+            background-color: #c0392b;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .pagination li {
+            margin: 0 5px;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .pagination .active a {
+            background-color: var(--primary-color);
+            color: white;
+            border: 1px solid var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .search-form {
+                padding: 15px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .clear-logs, .logout {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Syslog Viewer</h1>
+    </header>
+    <div class="container">
+        <div class="search-form">
+            <form method="get">
+                <div class="form-group">
+                    <label for="start_timestamp">Start Timestamp:</label>
+                    <input type="datetime-local" id="start_timestamp" name="start_timestamp" value="{{ start_timestamp }}">
+                </div>
+                <div class="form-group">
+                    <label for="end_timestamp">End Timestamp:</label>
+                    <input type="datetime-local" id="end_timestamp" name="end_timestamp" value="{{ end_timestamp }}">
+                </div>
+                <div class="form-group">
+                    <label for="host">Host:</label>
+                    <input type="text" id="host" name="host" placeholder="Enter host name" value="{{ host }}">
+                </div>
+                <div class="button-group">
+                    <button type="submit">Search Logs</button>
+                    <a href="{{ url_for('logout') }}" class="link-button">LOGOUT</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('admin') }}" class="link-button">Admin Page</a>
+            <a href="{{ url_for('clear_logs') }}" class="link-button">Clear Logs</a>
+        </div>
+
+        <h2>Logs</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Host</th>
+                    <th>Log Level</th>
+                    <th>Log</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp }}</td>
+                    <td>{{ log.host }}</td>
+                    <td>{{ log.log_level }}</td>
+                    <td>{{ log.log }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <ul class="pagination">
+            {% if page > 1 %}
+            <li><a href="{{ url_for('view_logs', start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, page=1) }}">First</a></li>
+            <li><a href="{{ url_for('view_logs', start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, page=page-1) }}">Previous</a></li>
+            {% endif %}
+
+            {% set start_page = page - 5 %}
+            {% if start_page < 1 %} {% set start_page = 1 %} {% endif %}
+
+            {% set end_page = page + 4 %}
+            {% if end_page > total_pages %} {% set end_page = total_pages %} {% endif %}
+
+            {% if start_page > 1 %}
+            <li><a href="{{ url_for('view_logs', start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, page=1) }}">1</a></li>
+            {% if start_page > 2 %}
+            <li>...</li>
+            {% endif %}
+            {% endif %}
+
+            {% for p in range(start_page, end_page + 1) %}
+            <li class="{{ 'active' if p == page else '' }}"><a href="{{ url_for('view_logs', start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, page=p) }}">{{ p }}</a></li>
+            {% endfor %}
+
+            {% if end_page < total_pages %}
+            {% if end_page < total_pages - 1 %}
+            <li>...</li>
+            {% endif %}
+            <li><a href="{{ url_for('view_logs', start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, page=total_pages) }}">{{ total_pages }}</a></li>
+            {% endif %}
+
+            {% if page < total_pages %}
+            <li><a href="{{ url_for('view_logs', start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, page=page+1) }}">Next</a></li>
+            <li><a href="{{ url_for('view_logs', start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, page=total_pages) }}">Last</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</body>
+</html>

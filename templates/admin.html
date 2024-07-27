@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            margin: 0;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: white;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-btn {
+            background-color: #e74c3c;
+        }
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Manage Whitelisted IPs</h2>
+            <form method="post">
+                <label for="ip_address">Add Whitelisted IP:</label>
+                <input type="text" id="ip_address" name="ip_address" required placeholder="Enter IP address">
+                <button type="submit" name="add_whitelisted_ip">Add IP</button>
+            </form>
+            <h3>Existing Whitelisted IPs</h3>
+            <ul>
+                {% for ip in whitelisted_ips %}
+                <li>
+                    <span>{{ ip[1] }}</span>
+                    <form method="post">
+                        <input type="hidden" name="ip_id" value="{{ ip[0] }}">
+                        <button type="submit" name="remove_whitelisted_ip" class="remove-btn">Remove</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section>
+            <h2>Manage IP Pools</h2>
+            <form method="post">
+                <label for="ip_range">Add IP Pool:</label>
+                <input type="text" id="ip_range" name="ip_range" required placeholder="Enter IP range">
+                <button type="submit" name="add_ip_pool">Add IP Pool</button>
+            </form>
+            <h3>Existing IP Pools</h3>
+            <ul>
+                {% for pool in ip_pools %}
+                <li>
+                    <span>{{ pool[1] }}</span>
+                    <form method="post">
+                        <input type="hidden" name="pool_id" value="{{ pool[0] }}">
+                        <button type="submit" name="remove_ip_pool" class="remove-btn">Remove</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+</body>
+</html>
