@@ -3,8 +3,16 @@ import logging.handlers
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session
 import socketserver
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
+from influxdb_client import InfluxDBClient, Point
+
+
+influxdb_url = 'http://localhost:8086'
+influxdb_token = 'your-influxdb-token'
+influxdb_org = 'your-org'
+influxdb_bucket = 'your-bucket'
+influxdb_client = InfluxDBClient(url=influxdb_url, token=influxdb_token)
 
 
 app = Flask(__name__)
@@ -129,6 +137,48 @@ def role_required(role):
         return wrap
     return decorator
 
+def prune_old_logs():
+    cutoff_date = datetime.now() - timedelta(days=4*30)  # Approximate 4 months as 120 days
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM logs WHERE timestamp < ?', (cutoff_date,))
+        conn.commit()
+    print(f"Pruned logs older than {cutoff_date}")
+
+def write_log_to_influxdb(host, log, log_level):
+    write_api = influxdb_client.write_api()
+    point = Point("logs") \
+        .tag("host", host) \
+        .field("log", log) \
+        .field("log_level", log_level)
+    write_api.write(bucket=influxdb_bucket, org=influxdb_org, record=point)
+
+def handle(self):
+    data = bytes.decode(self.request[0].strip())
+    socket = self.request[1]
+    host = self.client_address[0]
+    print(f"{host} : {data}")
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM whitelisted_ips WHERE ip_address = ?', (host,))
+        whitelisted_ip = cursor.fetchone()
+
+        if not whitelisted_ip:
+            print(f"IP {host} is not whitelisted. Log not saved.")
+            return  
+
+    log_level = 'INFO'
+    if 'error' in data.lower():
+        log_level = 'ERROR'
+    elif 'warning' in data.lower():
+        log_level = 'WARNING'
+    elif 'debug' in data.lower():
+        log_level = 'DEBUG'
+
+    # Write to InfluxDB
+    write_log_to_influxdb(host, data, log_level)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -145,9 +195,13 @@ def login():
                 return redirect(url_for('index'))
             else:
                 return render_template('404.html')
-    return render_template('login.html')
+    return render_template('kvlogin.html')
+@app.route('/login1')
+def login1():
+    return render_template('kvlogin.html')
 
 @app.route('/logout')
+
 def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
@@ -198,6 +252,12 @@ def index():
 
     return render_template('index.html', logs=logs, start_timestamp=start_timestamp, end_timestamp=end_timestamp, host=host, search_term=search_term, page=page, total_pages=total_pages)
 
+@app.route('/prune_logs', methods=['POST'])
+@login_required
+@role_required('admin')
+def prune_logs():
+    prune_old_logs()
+    return 'Old logs pruned!'
 
 @app.route('/view_logs', methods=['GET'])
 @login_required
