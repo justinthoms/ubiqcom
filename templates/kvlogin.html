@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KV Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #85afd6 url('{{ url_for('static', filename='sky.jpg') }}') no-repeat right;
+        }
+
+        .login-container {
+            display: flex;
+            width: 800px;
+            height: 400px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-form {
+            background-color: white;
+            padding: 30px;
+            width: 50%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px 0px 0px 20px;
+        }
+
+        .login-form .logo img {
+            width: 60px;
+            margin-bottom: 40px;
+        }
+
+        .login-form h1 {
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4db0e9;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .login-form button:hover {
+            background-color: rgb(21, 168, 236);
+            transform: scale(1.05);
+        }
+
+        .login-form a {
+            display: block;
+            text-align: right;
+            margin-top: 10px;
+            color: #ff7043;
+            text-decoration: none;
+        }
+
+        .login-form a:hover {
+            text-decoration: underline;
+        }
+
+        .login-form p {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .login-image {
+            width: 50%;
+            background: url('{{ url_for('static', filename='hand.jpg') }}') no-repeat center center;
+            background-size: cover;
+            border-radius: 0px 20px 20px 0px;
+        }
+
+        .logo {
+            margin-bottom: -40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo img {
+            width: 100px;
+        }
+
+        .check {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox {
+            margin-right: 10px;
+        }
+
+        .checkboxlabel {
+            min-width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='captiveportal-logo.png') }}" alt="Kv Logo">
+            </div>
+            <form method="post">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Username" required>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <div class="check">
+                    <input class="checkbox" type="checkbox" id="keep-logged-in">
+                    <label class="checkboxlabel" for="keep-logged-in">Keep logged in</label>
+                </div>
+                <button type="submit">Log In</button>
+            </form>
+            <p>&copy; 2024 KVBL Server team.</p>
+        </div>
+        <div class="login-image">
+            <!-- Background image is set in CSS -->
+        </div>
+    </div>
+</body>
+</html>
