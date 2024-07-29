@@ -8,11 +8,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from influxdb_client import InfluxDBClient, Point
 
 
-influxdb_url = 'http://localhost:8086'
+'''influxdb_url = 'http://localhost:8086'
 influxdb_token = 'your-influxdb-token'
 influxdb_org = 'your-org'
 influxdb_bucket = 'your-bucket'
-influxdb_client = InfluxDBClient(url=influxdb_url, token=influxdb_token)
+influxdb_client = InfluxDBClient(url=influxdb_url, token=influxdb_token)'''
 
 
 app = Flask(__name__)
@@ -97,7 +97,6 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                 print(f"IP {host} is not whitelisted. Log not saved.")
                 return  
 
-
         log_level = 'INFO'
         if 'error' in data.lower():
             log_level = 'ERROR'
@@ -105,10 +104,14 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
             log_level = 'WARNING'
         elif 'debug' in data.lower():
             log_level = 'DEBUG'
+        
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO logs (host, log, log_level) VALUES (?, ?, ?)", (host, data, log_level))
+            cursor.execute("INSERT INTO logs (timestamp, host, log, log_level) VALUES (?, ?, ?, ?)",
+                           (timestamp, host, data, log_level))
             conn.commit()
+
 
 def setup_logger():
     logger = logging.getLogger('SyslogServer')
@@ -145,7 +148,7 @@ def prune_old_logs():
         conn.commit()
     print(f"Pruned logs older than {cutoff_date}")
 
-def write_log_to_influxdb(host, log, log_level):
+'''def write_log_to_influxdb(host, log, log_level):
     write_api = influxdb_client.write_api()
     point = Point("logs") \
         .tag("host", host) \
@@ -177,7 +180,7 @@ def handle(self):
         log_level = 'DEBUG'
 
     # Write to InfluxDB
-    write_log_to_influxdb(host, data, log_level)
+    write_log_to_influxdb(host, data, log_level)'''
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
