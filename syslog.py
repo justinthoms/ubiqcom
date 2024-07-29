@@ -141,7 +141,7 @@ def role_required(role):
     return decorator
 
 def prune_old_logs():
-    cutoff_date = datetime.now() - timedelta(days=4*30)  # Approximate 4 months as 120 days
+    cutoff_date = datetime.now() - timedelta(days=3*30)  # Approximate 3 months as 90 days
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute('DELETE FROM logs WHERE timestamp < ?', (cutoff_date,))
